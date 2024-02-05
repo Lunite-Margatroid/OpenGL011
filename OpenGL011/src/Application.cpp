@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include "test/TestQuadA.h"
+#include "test/TestClearColor.h"
 
 void UpdateTimer();
 void RuntimeLog();
@@ -45,8 +46,8 @@ int main()
 
 	ImGui_ImplOpenGL3_Init("#version 130");
 	{
-		test::TestQuad test;
-
+		test::TestQuadA test;
+		test::TestClearColor testClearColor;
 		while (!glfwWindowShouldClose(window))
 		{
 			// Start the Dear ImGui frame
@@ -56,6 +57,7 @@ int main()
 			// OnRenderImgui
 			{
 				test.OnRenderImgui();
+				testClearColor.OnRenderImgui();
 			}
 			// OnUpdate
 			{
@@ -70,8 +72,9 @@ int main()
 			GLCall(glViewport(0, 0, display_w, display_h));
 			GLCall(glClear(GL_COLOR_BUFFER_BIT));
 			{/* Render Here */
+				testClearColor.OnRender();
 				test.OnRender();
-
+				
 			/***************/
 			}
 			// 这个大概是绘制imgui的窗口的

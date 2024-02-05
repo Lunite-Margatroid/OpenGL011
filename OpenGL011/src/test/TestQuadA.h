@@ -5,7 +5,7 @@
 #include "imgui/imgui.h"
 namespace test
 {
-	class TestQuad :public Test
+	class TestQuadA :public Test
 	{
 	private:
 		LM::Texture m_texture;
@@ -16,8 +16,8 @@ namespace test
 
 		glm::mat4 m_mvp;
 	public:
-		TestQuad();
-		~TestQuad();
+		TestQuadA();
+		~TestQuadA();
 
 		void OnRender() override;
 		void OnRenderImgui() override;
