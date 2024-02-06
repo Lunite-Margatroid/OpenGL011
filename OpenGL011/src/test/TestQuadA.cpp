@@ -23,9 +23,7 @@ void test::TestQuadA::OnRender()
 
 void test::TestQuadA::OnRenderImgui()
 {
-	ImGui::Begin("TestQuadA");
 	ImGui::SliderFloat3("position", &m_position[0], -4.0f, 4.0f);
-	ImGui::End();
 }
 
 void test::TestQuadA::OnUpdate(float deltaTime)

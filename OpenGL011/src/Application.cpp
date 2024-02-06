@@ -48,6 +48,13 @@ int main()
 	{
 		test::TestQuadA test;
 		test::TestClearColor testClearColor;
+
+		test::Test* pTest = nullptr;
+		test::TestMenu testMenu(pTest);    
+		test::Test* pTestMenu = &testMenu;
+		pTest = pTestMenu;
+		testMenu.RegisterTest<test::TestQuadA>("testQuadA");
+		testMenu.RegisterTest<test::TestClearColor>("TestClearColor");
 		while (!glfwWindowShouldClose(window))
 		{
 			// Start the Dear ImGui frame
@@ -56,12 +63,19 @@ int main()
 			ImGui::NewFrame();
 			// OnRenderImgui
 			{
-				test.OnRenderImgui();
-				testClearColor.OnRenderImgui();
+				ImGui::Begin("Test");
+
+				if (pTest != pTestMenu && ImGui::Button("<-"))
+				{
+					delete pTest;
+					pTest = pTestMenu;
+				}
+				pTest->OnRenderImgui();
+				ImGui::End();
 			}
 			// OnUpdate
 			{
-				test.OnUpdate(0.0f);
+				pTest->OnUpdate(deltaTime);
 			}
 
 			
@@ -72,8 +86,7 @@ int main()
 			GLCall(glViewport(0, 0, display_w, display_h));
 			GLCall(glClear(GL_COLOR_BUFFER_BIT));
 			{/* Render Here */
-				testClearColor.OnRender();
-				test.OnRender();
+				pTest->OnRender();
 				
 			/***************/
 			}
@@ -94,6 +107,13 @@ int main()
 			// 检查触发事件
 			glfwPollEvents();
 		}
+		// testMenu在栈区
+		// 动态创建的测试在堆区
+		if (pTest != pTestMenu)
+		{
+			delete pTest;
+		}
+		
 	}
 	// Cleanup
 	ImGui_ImplOpenGL3_Shutdown();
