@@ -158,4 +158,14 @@ namespace LM
 	{
 		return m_nWidth;
 	}
+	void Texture::SetTextureWrapS(GLenum texWrap)
+	{
+		Bind();
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texWrap));
+	}
+	void Texture::SetTextureWrapT(GLenum texWrap)
+	{
+		Bind();
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texWrap));
+	}
 }

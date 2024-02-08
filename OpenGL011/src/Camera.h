@@ -70,6 +70,10 @@ namespace LM
 		glm::vec3 GetPosition() const;
 		glm::vec3 GetDirection() const;
 
+		float GetYaw() const;
+		float GetPitch() const;
+		float GetFov() const;
+
 		virtual void ProcessKeyInput(GLFWwindow* window, float deltaTime);
 		virtual void ProcessMouse(GLFWwindow* window, double xpos, double ypos);
 		virtual void ProcessScroll(float offsety);

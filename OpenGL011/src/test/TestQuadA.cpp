@@ -35,5 +35,4 @@ void test::TestQuadA::OnUpdate(float deltaTime)
 	modelTrans = glm::scale(modelTrans, glm::vec3(9.0f, 9.0f, 9.0f));
 
 	m_mvp = projectTrans * modelTrans;
-
 }

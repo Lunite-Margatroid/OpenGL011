@@ -3,6 +3,7 @@
 
 LM::Camera_K::Camera_K()
 {
+	Camera::SetRotateSensitivity(1.0f);
 }
 
 LM::Camera_K::~Camera_K()
@@ -42,7 +43,7 @@ void LM::Camera_K::ProcessKeyInput(GLFWwindow* window, float deltaTime)
 	}
 
 	float yaw = 0.0f, pitch = 0.0f;
-	float deltaRad = PI / 2.0f * deltaTime;
+	float deltaRad = PI/2 * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS)
 	{
 		yaw += deltaRad;

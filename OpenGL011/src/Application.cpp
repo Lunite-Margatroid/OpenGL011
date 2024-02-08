@@ -14,6 +14,7 @@
 
 #include "test/TestQuadA.h"
 #include "test/TestClearColor.h"
+#include "test/Test3D.h"
 
 void UpdateTimer();
 void RuntimeLog();
@@ -24,6 +25,7 @@ float deltaTime = 0.0f;
 float lastTime = 0.0f;
 
 LM::Camera_K camera;
+extern LM::Camera_K& pCamera = camera;
 
 int main()
 {
@@ -53,8 +55,10 @@ int main()
 		test::TestMenu testMenu(pTest);    
 		test::Test* pTestMenu = &testMenu;
 		pTest = pTestMenu;
+
 		testMenu.RegisterTest<test::TestQuadA>("testQuadA");
 		testMenu.RegisterTest<test::TestClearColor>("TestClearColor");
+		testMenu.RegisterTest<test::Test3D>("Test 3D");
 		while (!glfwWindowShouldClose(window))
 		{
 			// Start the Dear ImGui frame

@@ -24,6 +24,21 @@ namespace LM
 		return m_front;
 	}
 
+	float Camera::GetYaw() const
+	{
+		return m_yaw;
+	}
+
+	float Camera::GetPitch() const
+	{
+		return m_pitch;
+	}
+
+	float Camera::GetFov() const
+	{
+		return m_fov;
+	}
+
 	void Camera::ProcessKeyInput(GLFWwindow* window, float deltaTime)
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

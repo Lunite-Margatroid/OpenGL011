@@ -54,6 +54,11 @@ namespace LM
 
 		int GetHeight() const;
 		int GetWidth() const;
+
+		// 设置环绕方式
+		void SetTextureWrapS(GLenum);
+		// 设置环绕方式
+		void SetTextureWrapT(GLenum);
 	};
 }
 
