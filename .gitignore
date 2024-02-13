@@ -3,5 +3,6 @@
 !/OpenGL011/
 /OpenGL011/*
 !/OpenGL011/src/
+!/OpenGL011/res/
 /OpenGL011/res/*
-!/OpenGL011/src/shader/
+!/OpenGL011/res/shader/

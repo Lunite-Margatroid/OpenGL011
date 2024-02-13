@@ -30,6 +30,9 @@ namespace test
 		m_vao.PushAttrib<float>(3);
 		m_vao.PushAttrib<float>(2);
 		m_vao.ApplyLayout();
+
+		m_shader.Bind();
+		m_shader.SetUniformTexture("material.texture_diffuse1", m_texture.GetIndex());
 	}
 	void Test3D::OnUpdate(float deltaTime)
 	{
