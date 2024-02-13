@@ -32,6 +32,7 @@ namespace LM
 	public:
 		PointLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 position);
 		PointLight();
+		virtual ~PointLight();
 		void SetUniformLight(const std::string& valName, Shader& shader);
 		void SetUniformPosition(const std::string& valName, Shader& shader);
 		void SetLightPosition(const glm::vec3& position);
