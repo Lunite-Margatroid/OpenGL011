@@ -16,6 +16,7 @@
 #include "test/TestClearColor.h"
 #include "test/Test3D.h"
 #include "test/TestBlinn.h"
+#include "test/TestShadow.h"
 
 void UpdateTimer();
 void RuntimeLog();
@@ -61,6 +62,7 @@ int main()
 		testMenu.RegisterTest<test::TestClearColor>("TestClearColor");
 		testMenu.RegisterTest<test::Test3D>("Test 3D");
 		testMenu.RegisterTest<test::TestBlinn>("Test Bilnn-Phong");
+		testMenu.RegisterTest<test::TestShadow>("Test Shadow");
 		while (!glfwWindowShouldClose(window))
 		{
 			// Start the Dear ImGui frame

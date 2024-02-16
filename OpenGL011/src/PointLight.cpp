@@ -17,6 +17,10 @@ LM::PointLight::PointLight()
 	m_kQuadratic = 0.01f;
 }
 
+LM::PointLight::~PointLight()
+{
+}
+
 void LM::PointLight::SetUniformLight(const std::string& valName, Shader& shader)
 {
 	Light::SetUniformLight(valName, shader);

@@ -20,6 +20,8 @@ namespace LM
         */
     protected:
         glm::vec3 m_v3Direction;
+
+        
     public:
         DirLight(glm::vec3 ambi, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir);
         DirLight();

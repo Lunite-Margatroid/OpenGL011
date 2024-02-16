@@ -16,6 +16,10 @@ LM::SpotLight::SpotLight()
 	m_fOuterBdr = cos(3.14159f / 10.f);
 }
 
+LM::SpotLight::~SpotLight()
+{
+}
+
 void LM::SpotLight::SetUniformLight(const std::string& valName, Shader& shader)
 {
 	PointLight::SetUniformLight(valName, shader);

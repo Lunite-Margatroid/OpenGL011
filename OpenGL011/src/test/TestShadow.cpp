@@ -6,8 +6,10 @@ namespace test
 {
 	TestShadow::TestShadow() :
 		m_shader("./res/shader/3DDirLightShadowVertex.shader", "./res/shader/3DDirLightShadowFrag.shader"),
-		m_texFloor("./res/img/floor2.jpg",0, GL_RGB, GL_RGB),
-		m_texCube("./res/img/img_2.png",1, GL_RGBA, GL_RGBA)
+		m_texFloor("./res/img/floor2.jpg", 0, GL_RGB, GL_RGB),
+		m_texCube("./res/img/img_2.png", 1, GL_RGBA, GL_RGBA),
+		m_floorShininess(16.0f),
+		m_cubeShininess(32.0f)
 	{
 		m_lightDirection = m_dirLight.GetDirection();
 		m_ambient = m_dirLight.GetAmbient();
@@ -69,23 +71,23 @@ namespace test
 			0.0f,0.0f, -1.0f,			0.0f,0.0f, -1.0f,		1.0f, 0.0f,
 			0.0f,0.0f, -1.0f,			0.0f,0.0f, -1.0f,		1.0f, 1.0f,
 			0.0f,0.0f, -1.0f,			0.0f,0.0f, -1.0f,		0.0f, 1.0f,
-										
+
 			0.0f,0.0f, 1.0f,			0.0f,0.0f, 1.0f,		0.0f, 0.0f,
 			0.0f,0.0f, 1.0f,			0.0f,0.0f, 1.0f,		1.0f, 0.0f,
 			0.0f,0.0f, 1.0f,			0.0f,0.0f, 1.0f,		1.0f, 1.0f,
 			0.0f,0.0f, 1.0f,			0.0f,0.0f, 1.0f,		0.0f, 1.0f,
-										
+
 			-1.0f, 0.0f,0.0f,			-1.0f, 0.0f,0.0f,		0.0f, 0.0f,
 			-1.0f, 0.0f,0.0f,			-1.0f, 0.0f,0.0f,		1.0f, 0.0f,
 			-1.0f, 0.0f,0.0f,			-1.0f, 0.0f,0.0f,		1.0f, 1.0f,
 			-1.0f, 0.0f,0.0f,			-1.0f, 0.0f,0.0f,		0.0f, 1.0f,
-									
+
 			1.0f, 0.0f, 0.0f,			1.0f, 0.0f, 0.0f,		0.0f, 0.0f,
 			1.0f, 0.0f, 0.0f,			1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
 			1.0f, 0.0f, 0.0f,			1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
 			1.0f, 0.0f, 0.0f,			1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
 		};
-		unsigned int indice[40] = {0, 1, 2, 3, 4, 5, 6, 6, 7, 4};
+		unsigned int indice[40] = { 0, 1, 2, 3, 4, 5, 6, 6, 7, 4 };
 		for (unsigned int i = 10; i < 40; i++)
 		{
 			indice[i] = indice[i - 6] + 4;
@@ -103,18 +105,25 @@ namespace test
 		GLCall(glEnable(GL_BLEND));
 		// 无视alpha通道 完全遮挡
 		GLCall(glBlendFunc(GL_ONE, GL_ZERO));
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	TestShadow::~TestShadow()
 	{
 		GLCall(glDisable(GL_BLEND));
+		glDisable(GL_DEPTH_TEST);
 	}
 	void TestShadow::OnRender()
 	{
+		glClear(GL_DEPTH_BUFFER_BIT);
 		m_vao.Bind();
 		m_shader.Bind();
-		glDrawElements(GL_TRIANGLES, 4, GL_UNSIGNED_INT, 0);
-		glDrawElementsInstanced(GL_TRIANGLES, 24, GL_UNSIGNED_INT, (void*)(4*sizeof(unsigned int)), 2);
+		m_shader.SetUniform1i("u_texID", 0);
+		m_shader.SetUniform1f("u_material.shininess", m_floorShininess);
+		glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, 0);
+		m_shader.SetUniform1i("u_texID", 1);
+		m_shader.SetUniform1f("u_material.shininess", m_cubeShininess);
+		glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(4 * sizeof(unsigned int)), 1);
 	}
 	void TestShadow::OnUpdate(float deltaTime)
 	{
@@ -134,6 +143,22 @@ namespace test
 		m_shader.SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
 
 		m_shader.SetUniform3f("u_cameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
-		
+		m_shader.SetUniform1f("u_material.shininess", 20.0f);
+		//m_texFloor.Bind();
+		m_shader.SetUniformTexture("u_material.texture_diffuse1", m_texFloor.GetIndex());
+		//m_texCube.Bind();
+		m_shader.SetUniformTexture("u_material.texture_diffuse2", m_texCube.GetIndex());
+
+		m_dirLight.SetUniformLight("u_dirLight", m_shader);
+
+		m_dirLight.SetLightColor(m_ambient, m_diffuse, m_specular);
+		m_dirLight.SetLightDirection(m_lightDirection);
+	}
+	void TestShadow::OnRenderImgui()
+	{
+		ImGui::SliderFloat3("lightDirection", &m_lightDirection.x, -1.0f, 1.0f);
+		ImGui::SliderFloat3("ambient", &m_ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("diffuse", &m_diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("specular", &m_specular.x, 0.0f, 1.0f);
 	}
 }

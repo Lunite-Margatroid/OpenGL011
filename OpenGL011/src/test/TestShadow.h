@@ -28,6 +28,9 @@ namespace test
 		glm::vec3 m_diffuse;
 
 		float m_cubePos[6];
+
+		float m_floorShininess;
+		float m_cubeShininess;
 	public:
 		TestShadow();
 		~TestShadow();
