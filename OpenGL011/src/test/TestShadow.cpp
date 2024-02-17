@@ -16,8 +16,10 @@ namespace test
 		m_specular = m_dirLight.GetSpecular();
 		m_diffuse = m_dirLight.GetDiffuse();
 
-
-		memset(m_cubePos, 0, sizeof(float) * 6);
+		m_cubeRotation[0] = glm::vec4(0.0f);
+		m_cubeRotation[0].y = 1.0f;
+		m_cubeRotation[1] = glm::vec4(0.0f);
+		m_cubeRotation[1].y = 1.0f;
 
 		float vertice[] =
 		{	// 位置坐标					法线向量					纹理坐标
@@ -116,17 +118,6 @@ namespace test
 	void TestShadow::OnRender()
 	{
 		glClear(GL_DEPTH_BUFFER_BIT);
-		m_vao.Bind();
-		m_shader.Bind();
-		m_shader.SetUniform1i("u_texID", 0);
-		m_shader.SetUniform1f("u_material.shininess", m_floorShininess);
-		glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, 0);
-		m_shader.SetUniform1i("u_texID", 1);
-		m_shader.SetUniform1f("u_material.shininess", m_cubeShininess);
-		glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(4 * sizeof(unsigned int)), 1);
-	}
-	void TestShadow::OnUpdate(float deltaTime)
-	{
 		static glm::mat4 modelTrans(1.0f);
 		static glm::mat4 viewTrans;
 		static glm::mat4 projectionTrans;
@@ -134,25 +125,53 @@ namespace test
 		static glm::vec3 cameraPos;
 		viewTrans = pCamera.GetViewTrans();
 		projectionTrans = pCamera.GetProjectionTrans();
-		normalMat = glm::transpose(inverse(modelTrans));
 		cameraPos = pCamera.GetPosition();
 		m_shader.Bind();
-		m_shader.SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
 		m_shader.SetUniformMatrix4f("u_viewTrans", false, glm::value_ptr(viewTrans));
 		m_shader.SetUniformMatrix4f("u_projectionTrans", false, glm::value_ptr(projectionTrans));
-		m_shader.SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
 
 		m_shader.SetUniform3f("u_cameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
 		m_shader.SetUniform1f("u_material.shininess", 20.0f);
-		//m_texFloor.Bind();
 		m_shader.SetUniformTexture("u_material.texture_diffuse1", m_texFloor.GetIndex());
-		//m_texCube.Bind();
 		m_shader.SetUniformTexture("u_material.texture_diffuse2", m_texCube.GetIndex());
 
 		m_dirLight.SetUniformLight("u_dirLight", m_shader);
 
 		m_dirLight.SetLightColor(m_ambient, m_diffuse, m_specular);
 		m_dirLight.SetLightDirection(m_lightDirection);
+
+		m_vao.Bind();
+		
+		m_shader.SetUniform1i("u_texID", 0);
+		m_shader.SetUniform1f("u_material.shininess", m_floorShininess);
+		modelTrans = glm::mat4(1.0f);
+		normalMat = glm::transpose(inverse(modelTrans));
+		m_shader.SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
+		m_shader.SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
+		GLCall(glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, 0));
+
+		m_shader.SetUniform1i("u_texID", 1);
+		m_shader.SetUniform1f("u_material.shininess", m_cubeShininess);
+
+		modelTrans = glm::translate(glm::mat4(1.0f), m_cubePosition[0]);
+		modelTrans = glm::rotate(modelTrans, m_cubeRotation[0].w, glm::vec3(m_cubeRotation[0]));
+		normalMat = glm::transpose(inverse(modelTrans));
+		m_shader.SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
+		m_shader.SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
+
+		GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(4 * sizeof(unsigned int))));
+
+		modelTrans = glm::translate(glm::mat4(1.0f), m_cubePosition[1]);
+		modelTrans = glm::rotate(modelTrans, m_cubeRotation[1].w, glm::vec3(m_cubeRotation[1]));
+		normalMat = glm::transpose(inverse(modelTrans));
+		m_shader.SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
+		m_shader.SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
+
+		GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(4 * sizeof(unsigned int))));
+	}
+	void TestShadow::OnUpdate(float deltaTime)
+	{
+		
 	}
 	void TestShadow::OnRenderImgui()
 	{
@@ -160,5 +179,17 @@ namespace test
 		ImGui::SliderFloat3("ambient", &m_ambient.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("diffuse", &m_diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("specular", &m_specular.x, 0.0f, 1.0f);
+		ImGui::SliderFloat("FloorShininess", &m_floorShininess, 0.0f, 64.0f);
+		ImGui::SliderFloat("CubeShininess", &m_cubeShininess, 0.0f, 64.0f);
+
+		ImGui::Text("Cube1");
+		ImGui::SliderFloat3("Cube1 Position", &m_cubePosition[0].x, -5.0f, 5.0f);
+		ImGui::SliderFloat("Cube1 Rotation Angle", &m_cubeRotation[0].w, -PI, PI);
+		ImGui::SliderFloat3("Cube1 Rotation Axis", &m_cubeRotation[0].x, -1.0f, 1.0f);
+		
+		ImGui::Text("Cube2");
+		ImGui::SliderFloat3("Cube2 Position", &m_cubePosition[1].x, -5.0f, 5.0f);
+		ImGui::SliderFloat("Cube2 Rotation Angle", &m_cubeRotation[1].w, -PI, PI);
+		ImGui::SliderFloat3("Cube2 Rotation Axis", &m_cubeRotation[1].x, -1.0f, 1.0f);
 	}
 }

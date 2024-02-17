@@ -27,7 +27,8 @@ namespace test
 		glm::vec3 m_specular;
 		glm::vec3 m_diffuse;
 
-		float m_cubePos[6];
+		glm::vec3 m_cubePosition[2];
+		glm::vec4 m_cubeRotation[2];
 
 		float m_floorShininess;
 		float m_cubeShininess;
