@@ -136,7 +136,7 @@ namespace test
 		static glm::vec3 cameraPos;
 		static glm::mat4 lightTrans;
 		static glm::mat4 lightView;
-		static glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 30.0f);
+		static glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 15.0f);
 		static glm::vec3 lightPos = glm::vec3(0.0f, 10.0f, 0.0f);
 		// 更新静态变量
 		viewTrans = pCamera.GetViewTrans();
@@ -149,6 +149,7 @@ namespace test
 		// 绘制深度贴图
 		m_depthMap.Bind();
 		GLCall(glClear(GL_DEPTH_BUFFER_BIT));
+		glViewport(0, 0, m_depthMap.GetWidth(), m_depthMap.GetHeight());
 		m_shaderShadowTex.Bind();
 		lightView = glm::lookAt(lightPos, lightPos + m_dirLight.GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f));
 		lightTrans = lightProjection * lightView;
@@ -172,6 +173,7 @@ namespace test
 		
 		// 绘制main
 		glClear(GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, WIDTH, HEIGHT);
 		m_shaderDraw->Bind();
 		if (m_shadow)
 		{
