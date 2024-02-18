@@ -62,7 +62,14 @@ float InShadow()
 	texCoord = texCoord * 0.5f + 0.5f;						// 0 <= xyz <= 1
 	float closeDepth = texture(u_depthMap, texCoord.xy).r;
 	float currentDepth = texCoord.z;
-	float shadow = currentDepth > closeDepth ? 1.0f : 0.0f;
+	float shadow;
+	if(currentDepth > 1.0f)
+		shadow = 0.0f;
+	else
+	{
+		float bias = 0.01f;
+		shadow = currentDepth-bias > closeDepth ? 1.0f : 0.0f;
+	}
 	return shadow;
 }
 

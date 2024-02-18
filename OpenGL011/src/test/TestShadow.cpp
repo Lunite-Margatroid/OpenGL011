@@ -16,7 +16,7 @@ namespace test
 		m_depthMap(1024, 1024, 2),
 		m_shadow(true)
 	{
-		//--------------------- 初始化--------------------
+		//------------------- 初始化--------------------
 		m_lightDirection = glm::vec3(0.2f, -1.0f, 0.0f);
 		m_dirLight.SetLightDirection(m_lightDirection);
 		m_ambient = m_dirLight.GetAmbient();
@@ -28,8 +28,8 @@ namespace test
 		m_cubeRotation[1] = glm::vec4(0.0f);
 		m_cubeRotation[1].y = 1.0f;
 
-		m_cubePosition[0] = glm::vec3(0.0f, 0.5f, 0.0f);
-		m_cubePosition[1] = glm::vec3(0.0f, 2.0f, -3.0f);
+		m_cubePosition[0] = glm::vec3(0.0f, 1.0f, 0.0f);
+		m_cubePosition[1] = glm::vec3(0.0f, 2.5f, -3.0f);
 
 		//---------------------------------------------
 		float vertice[] =
