@@ -5,6 +5,7 @@
 #include "ElementBuffer.h"
 #include "Camera_K.h"
 #include "DirLight.h"
+#include "DepthBuffer.h"
 
 namespace test
 {
@@ -16,6 +17,8 @@ namespace test
 		LM::VertexBuffer m_vbo;
 
 		LM::Shader m_shader;
+		LM::Shader m_shaderShadowTex;
+		LM::Shader m_shaderShadowed;
 		LM::Texture m_texFloor;
 		LM::Texture m_texCube;
 
@@ -32,6 +35,12 @@ namespace test
 
 		float m_floorShininess;
 		float m_cubeShininess;
+
+		LM::Shader* m_shaderDraw;
+
+		LM::DepthBuffer m_depthMap;
+
+		bool m_shadow;
 	public:
 		TestShadow();
 		~TestShadow();

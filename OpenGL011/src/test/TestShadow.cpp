@@ -5,13 +5,20 @@ extern LM::Camera_K& pCamera;
 namespace test
 {
 	TestShadow::TestShadow() :
-		m_shader("./res/shader/3DDirLightShadowVertex.shader", "./res/shader/3DDirLightShadowFrag.shader"),
+		m_shader("./res/shader/3DDirLightVertex.shader", "./res/shader/3DDirLightFrag.shader"),
+		m_shaderShadowTex("./res/shader/ShadowTexVertex.shader","./res/shader/ShadowTexFrag.shader"),
+		m_shaderShadowed("./res/shader/DirLightShadowVertex.shader","./res/shader/DirLightShadowFrag.shader"),
 		m_texFloor("./res/img/floor2.jpg", 0, GL_RGB, GL_RGB),
 		m_texCube("./res/img/img_2.png", 1, GL_RGBA, GL_RGBA),
 		m_floorShininess(16.0f),
-		m_cubeShininess(32.0f)
+		m_cubeShininess(32.0f),
+		m_shaderDraw(&m_shaderShadowed),
+		m_depthMap(1024, 1024, 2),
+		m_shadow(true)
 	{
-		m_lightDirection = m_dirLight.GetDirection();
+		//--------------------- 初始化--------------------
+		m_lightDirection = glm::vec3(0.2f, -1.0f, 0.0f);
+		m_dirLight.SetLightDirection(m_lightDirection);
 		m_ambient = m_dirLight.GetAmbient();
 		m_specular = m_dirLight.GetSpecular();
 		m_diffuse = m_dirLight.GetDiffuse();
@@ -21,6 +28,10 @@ namespace test
 		m_cubeRotation[1] = glm::vec4(0.0f);
 		m_cubeRotation[1].y = 1.0f;
 
+		m_cubePosition[0] = glm::vec3(0.0f, 0.5f, 0.0f);
+		m_cubePosition[1] = glm::vec3(0.0f, 2.0f, -3.0f);
+
+		//---------------------------------------------
 		float vertice[] =
 		{	// 位置坐标					法线向量					纹理坐标
 			//--------------- 地板 -----------------------
@@ -117,61 +128,102 @@ namespace test
 	}
 	void TestShadow::OnRender()
 	{
-		glClear(GL_DEPTH_BUFFER_BIT);
+		// 声明静态变量
 		static glm::mat4 modelTrans(1.0f);
 		static glm::mat4 viewTrans;
 		static glm::mat4 projectionTrans;
 		static glm::mat3 normalMat;
 		static glm::vec3 cameraPos;
+		static glm::mat4 lightTrans;
+		static glm::mat4 lightView;
+		static glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 30.0f);
+		static glm::vec3 lightPos = glm::vec3(0.0f, 10.0f, 0.0f);
+		// 更新静态变量
 		viewTrans = pCamera.GetViewTrans();
 		projectionTrans = pCamera.GetProjectionTrans();
 		cameraPos = pCamera.GetPosition();
-		m_shader.Bind();
-		m_shader.SetUniformMatrix4f("u_viewTrans", false, glm::value_ptr(viewTrans));
-		m_shader.SetUniformMatrix4f("u_projectionTrans", false, glm::value_ptr(projectionTrans));
 
-		m_shader.SetUniform3f("u_cameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
-		m_shader.SetUniform1f("u_material.shininess", 20.0f);
-		m_shader.SetUniformTexture("u_material.texture_diffuse1", m_texFloor.GetIndex());
-		m_shader.SetUniformTexture("u_material.texture_diffuse2", m_texCube.GetIndex());
+		// 绑定顶点缓冲
+		m_vao.Bind();
 
-		m_dirLight.SetUniformLight("u_dirLight", m_shader);
+		// 绘制深度贴图
+		m_depthMap.Bind();
+		GLCall(glClear(GL_DEPTH_BUFFER_BIT));
+		m_shaderShadowTex.Bind();
+		lightView = glm::lookAt(lightPos, lightPos + m_dirLight.GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f));
+		lightTrans = lightProjection * lightView;
+		modelTrans = glm::mat4(1.0f);
+		m_shaderShadowTex.SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
+		m_shaderShadowTex.SetUniformMatrix4f("u_lightTrans", false, glm::value_ptr(lightTrans));
+		GLCall(glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, 0));	// 地板
+
+		modelTrans = glm::translate(glm::mat4(1.0f), m_cubePosition[0]);
+		modelTrans = glm::rotate(modelTrans, m_cubeRotation[0].w, glm::vec3(m_cubeRotation[0]));
+		m_shaderShadowTex.SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
+		GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(4 * sizeof(unsigned int))));// cube1
+
+		modelTrans = glm::translate(glm::mat4(1.0f), m_cubePosition[1]);
+		modelTrans = glm::rotate(modelTrans, m_cubeRotation[1].w, glm::vec3(m_cubeRotation[1]));
+		m_shaderShadowTex.SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
+		GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(4 * sizeof(unsigned int))));// cube2
+		
+		// 绑定默认帧缓冲
+		m_depthMap.Unbind();
+		
+		// 绘制main
+		glClear(GL_DEPTH_BUFFER_BIT);
+		m_shaderDraw->Bind();
+		if (m_shadow)
+		{
+			m_shaderDraw->SetUniformTexture("u_depthMap", m_depthMap.GetTexIndex());
+			m_shaderDraw->SetUniformMatrix4f("u_lightTrans", false, glm::value_ptr(lightTrans));
+		}
+		m_shaderDraw->SetUniformMatrix4f("u_viewTrans", false, glm::value_ptr(viewTrans));
+		m_shaderDraw->SetUniformMatrix4f("u_projectionTrans", false, glm::value_ptr(projectionTrans));
+
+		m_shaderDraw->SetUniform3f("u_cameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
+		m_shaderDraw->SetUniform1f("u_material.shininess", 20.0f);
+		m_shaderDraw->SetUniformTexture("u_material.texture_diffuse1", m_texFloor.GetIndex());
+		m_shaderDraw->SetUniformTexture("u_material.texture_diffuse2", m_texCube.GetIndex());
+
+		m_dirLight.SetUniformLight("u_dirLight", *m_shaderDraw);
 
 		m_dirLight.SetLightColor(m_ambient, m_diffuse, m_specular);
 		m_dirLight.SetLightDirection(m_lightDirection);
-
-		m_vao.Bind();
 		
-		m_shader.SetUniform1i("u_texID", 0);
-		m_shader.SetUniform1f("u_material.shininess", m_floorShininess);
+		m_shaderDraw->SetUniform1i("u_texID", 0);
+		m_shaderDraw->SetUniform1f("u_material.shininess", m_floorShininess);
 		modelTrans = glm::mat4(1.0f);
 		normalMat = glm::transpose(inverse(modelTrans));
-		m_shader.SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
-		m_shader.SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
+		m_shaderDraw->SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
+		m_shaderDraw->SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
 		GLCall(glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, 0));
 
-		m_shader.SetUniform1i("u_texID", 1);
-		m_shader.SetUniform1f("u_material.shininess", m_cubeShininess);
+		m_shaderDraw->SetUniform1i("u_texID", 1);
+		m_shaderDraw->SetUniform1f("u_material.shininess", m_cubeShininess);
 
 		modelTrans = glm::translate(glm::mat4(1.0f), m_cubePosition[0]);
 		modelTrans = glm::rotate(modelTrans, m_cubeRotation[0].w, glm::vec3(m_cubeRotation[0]));
 		normalMat = glm::transpose(inverse(modelTrans));
-		m_shader.SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
-		m_shader.SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
+		m_shaderDraw->SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
+		m_shaderDraw->SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
 
 		GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(4 * sizeof(unsigned int))));
 
 		modelTrans = glm::translate(glm::mat4(1.0f), m_cubePosition[1]);
 		modelTrans = glm::rotate(modelTrans, m_cubeRotation[1].w, glm::vec3(m_cubeRotation[1]));
 		normalMat = glm::transpose(inverse(modelTrans));
-		m_shader.SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
-		m_shader.SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
+		m_shaderDraw->SetUniformMatrix4f("u_modelTrans", false, glm::value_ptr(modelTrans));
+		m_shaderDraw->SetUniformMatrix3f("u_normalMat", false, glm::value_ptr(normalMat));
 
 		GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(4 * sizeof(unsigned int))));
 	}
 	void TestShadow::OnUpdate(float deltaTime)
 	{
-		
+		if (m_shadow)
+			m_shaderDraw = &m_shaderShadowed;
+		else
+			m_shaderDraw = &m_shader;
 	}
 	void TestShadow::OnRenderImgui()
 	{
@@ -191,5 +243,7 @@ namespace test
 		ImGui::SliderFloat3("Cube2 Position", &m_cubePosition[1].x, -5.0f, 5.0f);
 		ImGui::SliderFloat("Cube2 Rotation Angle", &m_cubeRotation[1].w, -PI, PI);
 		ImGui::SliderFloat3("Cube2 Rotation Axis", &m_cubeRotation[1].x, -1.0f, 1.0f);
+
+		ImGui::Checkbox("shadow", &m_shadow);
 	}
 }
