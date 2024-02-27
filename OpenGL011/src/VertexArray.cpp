@@ -39,12 +39,12 @@ unsigned int LM::VertexArray::GetID() const
 	return m_id;
 }
 
-void LM::VertexArray::Bind()
+void LM::VertexArray::Bind() const
 {
 	GLCall(glBindVertexArray(m_id));
 }
 
-void LM::VertexArray::Unbind()
+void LM::VertexArray::Unbind() const
 {
 	GLCall(glBindVertexArray(0));
 }

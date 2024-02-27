@@ -39,7 +39,8 @@ namespace LM
 		return true;
 	}
 
-	Texture::Texture(const std::string& imgPath, unsigned char index, int texColorMode, int imgColorMode, bool bGenerateMipmap)
+	Texture::Texture(const std::string& imgPath, unsigned char index, int texColorMode, int imgColorMode, bool bGenerateMipmap, TextureType type)
+		:m_type(type)
 	{
 		this->LoadTexture(&m_uTextureID, imgPath, index, texColorMode, imgColorMode, true);
 		m_ubTextureIndex = index;
@@ -167,5 +168,13 @@ namespace LM
 	{
 		Bind();
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texWrap));
+	}
+	TextureType Texture::GetTextureType() const
+	{
+		return m_type;
+	}
+	void Texture::SetTextureType(TextureType type)
+	{
+		m_type = type;
 	}
 }

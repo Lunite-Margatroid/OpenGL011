@@ -2,6 +2,16 @@
 
 namespace LM
 {
+	// 纹理类型枚举 8bit无符号整形
+	enum TextureType : uint8_t
+	{
+		texture_uknown,				
+		texture_diffuse,	// 漫反射纹理
+		texture_specular,	// 镜面反射纹理
+		texture_normal,		// 法线纹理
+		texture_parallax	// 视差贴图
+	};
+
 	class Texture
 	{
 	protected:
@@ -16,6 +26,7 @@ namespace LM
 		std::string m_strType;
 		aiString m_aistrPath;		// 纹理路径
 
+		TextureType m_type;
 		/// <summary>
 		/// 加载纹理
 		/// </summary>
@@ -40,7 +51,7 @@ namespace LM
 		/// <param name="imgColorMode">图片资源的颜色模式，同上</param>
 		/// <param name="bGenerateMipmap">是否生成多级渐远纹理，默认为true</param>
 		Texture(const std::string& imgPath, unsigned char index, int texColorMode,
-			int imgColorMode, bool bGenerateMipmap = true);
+			int imgColorMode, bool bGenerateMipmap = true,TextureType type = texture_diffuse);
 		~Texture();
 		Texture() {};
 
@@ -59,6 +70,9 @@ namespace LM
 		void SetTextureWrapS(GLenum);
 		// 设置环绕方式
 		void SetTextureWrapT(GLenum);
+
+		TextureType GetTextureType() const;
+		void SetTextureType(TextureType type);
 	};
 }
 
