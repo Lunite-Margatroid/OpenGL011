@@ -36,23 +36,19 @@ namespace LM
 		static TextureTypeMap* s_Instance;
 		static const std::string& TextureType2Str(TextureType type);
 		// index 最小为1 最大为8
-		static const char* TextureType2UniformName(TextureType type, unsigned int index);
+		static const std::string& TextureType2UniformName(TextureType type, unsigned int index);
 	};
 
 	class Mesh
 	{
 	protected:
-		const VertexBuffer* m_vb;
-		const ElementBuffer* m_eb;
 		const VertexArray* m_va;
-
-		float m_RotationRad;
 
 		std::vector<Texture*> m_Textures;
 
-		virtual void SetUniform(Shader&, Camera&, const glm::mat4* parentModelTrans = NULL) = 0;
+		virtual void SetUniformTexture(Shader&) = 0;
 	public:
-		Mesh(VertexBuffer* vb, ElementBuffer* eb, VertexArray* va, float rotationRad = 0.0f);
+		Mesh(VertexArray* va);
 		virtual ~Mesh();
 		virtual void Draw(Shader&);
 		virtual void PushTexture(Texture*);

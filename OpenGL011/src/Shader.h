@@ -16,6 +16,9 @@ namespace LM
 		void Bind() const;
 		void Unbind() const;
 
+		int GetUniformLocation(const std::string& valueName);
+
+
 		void SetUniform4f(const std::string& valueName, float v1, float v2, float v3, float v4);
 		void SetUniform3f(const std::string& valueName, float v1, float v2, float v3);
 		void SetUniform1i(const std::string& valueName, int v1);
@@ -63,7 +66,7 @@ namespace LM
 		void SetUniformNormalMat(glm::mat3&);
 		void SetUniformCameraPos(glm::vec3&);
 	private:
-		int GetUniformLocation(const std::string& valueName);
+		
 		static void GetShaderSource(const std::string& path, std::string& shaderCode);
 		static unsigned int CompileShader(const std::string& path, GLenum typeShader);
 		void AttachShader(unsigned int nShaderID);

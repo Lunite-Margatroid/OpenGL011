@@ -1,4 +1,6 @@
 #pragma once
+#include "VertexBuffer.h"
+#include "ElementBuffer.h"
 namespace LM {
 	struct AttribLayout
 	{
@@ -30,9 +32,13 @@ namespace LM {
 	private:
 		unsigned int m_id;
 		unsigned int m_stride;
+		VertexBuffer* m_vb;
+		ElementBuffer* m_eb;
 		std::vector<AttribLayout> m_attribLayout;
+		GLenum m_MetaType;
 	public:
-		VertexArray();
+		VertexArray(GLenum type = GL_TRIANGLES);
+		VertexArray(VertexBuffer*, ElementBuffer*, GLenum type = GL_TRIANGLES);
 		virtual ~VertexArray();
 
 		//void AddBuffer();
@@ -69,7 +75,17 @@ namespace LM {
 
 		unsigned int GetID() const;
 
+		GLenum GetMetaType() const;
+
+		void SetMetaType(GLenum);
+
 		void Bind() const;
 		void Unbind() const;
+
+		void Draw() const;
+		void Draw();
+
+		void SetVB(VertexBuffer* vb);
+		void SetEB(ElementBuffer* eb);
 	};
 }

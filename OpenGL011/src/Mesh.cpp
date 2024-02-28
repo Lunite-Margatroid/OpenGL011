@@ -37,7 +37,7 @@ namespace LM
 	{
 		return GetInstance()->m_TexTypeName[type];
 	}
-	const char* TextureTypeMap::TextureType2UniformName(TextureType type, unsigned int index)
+	const std::string& TextureTypeMap::TextureType2UniformName(TextureType type, unsigned int index)
 	{
 		TextureTypeMap* instance = GetInstance();
 		if (index < 1 || index > 8)
@@ -48,33 +48,15 @@ namespace LM
 		switch (type)
 		{
 		case texture_uknown: return nullptr;
-		case texture_diffuse: return instance->m_DiffTexUniformName[index - 1].c_str();
-		case texture_specular: return instance->m_SpecTexUniformName[index - 1].c_str();
-		case texture_normal: return instance->m_NormTexUniformName[index - 1].c_str();
-		case texture_parallax: return instance->m_ParaTexUniformName[index - 1].c_str();
+		case texture_diffuse: return instance->m_DiffTexUniformName[index - 1];
+		case texture_specular: return instance->m_SpecTexUniformName[index - 1];
+		case texture_normal: return instance->m_NormTexUniformName[index - 1];
+		case texture_parallax: return instance->m_ParaTexUniformName[index - 1];
 		default:return nullptr;
 		}
 		return nullptr;
 	}
 
-
-	Mesh::Mesh(VertexBuffer* vb, ElementBuffer* eb, VertexArray* va, float rotationRad)
-		: m_vb(vb), m_eb(eb), m_va(va), m_RotationRad(rotationRad)
-	{
-	}
-	Mesh::~Mesh()
-	{
-	}
-	void Mesh::Draw(Shader& shader)
-	{
-		shader.Bind();
-		m_va->Bind();
-		GLCall(glDrawElements(GL_TRIANGLES, m_eb->GetCount(), GL_UNSIGNED_INT, (void*)0));
-	}
-	void Mesh::PushTexture(Texture* texture)
-	{
-		m_Textures.push_back(texture);
-	}
 
 	TextureTypeMap* TextureTypeMap::GetInstance()
 	{
@@ -83,5 +65,27 @@ namespace LM
 
 		s_Instance = new TextureTypeMap();
 	}
+
+
+
+
+	Mesh::Mesh(VertexArray* va)
+		: m_va(va)
+	{
+	}
+	Mesh::~Mesh()
+	{
+	}
+	void Mesh::Draw(Shader& shader)
+	{
+		shader.Bind();
+		SetUniformTexture(shader);
+		m_va->Draw();
+	}
+	void Mesh::PushTexture(Texture* texture)
+	{
+		m_Textures.push_back(texture);
+	}
+
 
 }

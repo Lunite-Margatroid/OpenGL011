@@ -3,21 +3,40 @@
 
 namespace LM
 {
-	Mesh3D::Mesh3D(VertexBuffer* vb, ElementBuffer* eb, VertexArray* va, 
-		glm::vec3 position = glm::vec3(1.0f),
-		glm::vec3 rotationAxis = glm::vec3(1.0f), 
-		float rotationRad = 0.0f, 
-		glm::vec3 scale = glm::vec3(1.0f))
-		:Mesh(vb, eb, va, rotationRad), m_Postion(position), m_RotationAxis(rotationAxis),m_Scale(scale)
+	Mesh3D::Mesh3D(VertexArray* va, float shininess)
+		:Mesh(va),m_shininiess(shininess)
+	{
+	}
+	Mesh3D::Mesh3D(float shininess)
+		:Mesh(nullptr), m_shininiess(shininess)
 	{
 	}
 	Mesh3D::~Mesh3D()
 	{
 	}
-	void Mesh3D::SetUniform(Shader&, Camera&, const glm::mat4* parentModelTrans)
+	void Mesh3D::SetUniformTexture(Shader& shader)
 	{
+		unsigned char count[4];
+		memset(count, 0, 4);
+		for (auto i = m_Textures.begin(); i != m_Textures.end(); i++)
+		{
+			Texture* tex = (*i);
+			TextureType type = tex->GetTextureType();
+			tex->Bind();
+			shader.SetUniformTexture(TextureTypeMap::TextureType2UniformName(type, ++count[type - 1]), tex->GetIndex());
+		}
+		shader.SetUniform1f("u_material.shininess", m_shininiess);
 	}
-	void Mesh3D::Init()
+	void Mesh3D::Init(VertexArray* va)
 	{
+		Mesh::m_va = va;
+	}
+	float Mesh3D::GetShininess() const
+	{
+		return m_shininiess;
+	}
+	void Mesh3D::SetShininess(float shininess)
+	{
+		m_shininiess = shininess;
 	}
 }

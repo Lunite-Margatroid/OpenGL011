@@ -164,6 +164,8 @@ namespace LM
 		return location;
 	}
 
+	
+
 	void Shader::GetShaderSource(const std::string& path, std::string& shaderSource)
 	{
 		std::ifstream infile;

@@ -10,12 +10,12 @@
 #include "Mesh3D.h"
 namespace test
 {
-	class TestShadow :public Test
+	class TestMesh3D :public Test
 	{
 	private:
-		LM::VertexArray m_vao;
-		LM::ElementBuffer m_ebo;
-		LM::VertexBuffer m_vbo;
+		LM::VertexArray m_vao[2];
+		LM::ElementBuffer m_ebo[2];
+		LM::VertexBuffer m_vbo[2];
 
 		LM::Shader m_shader;
 		LM::Shader m_shaderShadowTex;
@@ -43,10 +43,11 @@ namespace test
 
 		bool m_shadow;
 
-		Mesh3D m_meshCube;
+		LM::Mesh3D m_meshCube;
+		LM::Mesh3D m_meshFloor;
 	public:
-		TestShadow();
-		~TestShadow();
+		TestMesh3D();
+		~TestMesh3D();
 
 		void OnRender() override;
 		void OnUpdate(float deltaTime) override;

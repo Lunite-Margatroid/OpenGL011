@@ -18,6 +18,7 @@
 #include "test/TestBlinn.h"
 #include "test/TestShadow.h"
 #include "test/TestTextureMap.h"
+#include "test/TestMesh3D.h"
 
 void UpdateTimer();
 void RuntimeLog();
@@ -65,6 +66,7 @@ int main()
 		testMenu.RegisterTest<test::TestBlinn>("Test Bilnn-Phong");
 		testMenu.RegisterTest<test::TestShadow>("Test Shadow");
 		testMenu.RegisterTest<test::TestTextureMap>("TestTextureMap");
+		testMenu.RegisterTest<test::TestMesh3D>("Test Mesh3D");
 		while (!glfwWindowShouldClose(window))
 		{
 			// Start the Dear ImGui frame
