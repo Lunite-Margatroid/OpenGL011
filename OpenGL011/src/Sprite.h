@@ -6,17 +6,12 @@ namespace LM {
 	class Sprite
 	{
 	protected:
-		float m_RotationRad;
 		const Shader* m_Shader;
 		const Camera* m_Camera;
 		bool m_Enable;
-		// 父结点
-		const Sprite* m_Parent;
-		// 子结点
-		std::vector<Sprite*> m_Children;
 		// Meshes
 		std::vector<Mesh*> m_Meshes;
-		Sprite(Shader* shader = nullptr,Camera* camera = nullptr, Sprite* parent = nullptr, float rotationRad = 0.0f);
+		Sprite(Shader* shader = nullptr,Camera* camera = nullptr);
 		
 	public:
 		virtual ~Sprite();
@@ -27,14 +22,12 @@ namespace LM {
 		virtual void SetCamera(Camera* camera);
 		virtual const Camera* GetCamera() const;
 
-		virtual void Draw();
+		virtual void Draw(glm::mat4 objMoudleTrans);
 
 		virtual void SetShader(Shader* shader);
 		virtual const Shader* GetShader() const;
 
 		virtual void AddMeshes(Mesh* mesh);
-
-		virtual void AddChild(Sprite* sprite);
 		// ------- 旋转角度 ------------
 		// 设置旋转角度
 		void SetRotationRad(float rad);
