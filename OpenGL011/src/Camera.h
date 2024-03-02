@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Input.h";
 
 #ifndef PI
 #define PI 3.14159f
@@ -45,6 +45,7 @@ namespace LM
 		float m_moveSpeed;
 		float m_scrollSensitivity;
 		float m_rotateSensitivity;
+		float m_keyFovSensitivity;
 
 		void UpdateViewTrans();
 		void UpdateProjectionTrans();
@@ -64,8 +65,8 @@ namespace LM
 		void SetRotateSensitivity(float sensitivity);
 		void SetFov(float fov);
 
-		glm::mat4 GetViewTrans();
-		glm::mat4 GetProjectionTrans();
+		glm::mat4 GetViewTrans() const;
+		glm::mat4 GetProjectionTrans() const;
 
 		glm::vec3 GetPosition() const;
 		glm::vec3 GetDirection() const;
@@ -76,7 +77,12 @@ namespace LM
 
 		virtual void ProcessKeyInput(GLFWwindow* window, float deltaTime);
 		virtual void ProcessMouse(GLFWwindow* window, double xpos, double ypos);
+
+		virtual void ProcessKeyInput(float deltaTime);
+		virtual void ProcessMouse(float deltaTime);
+
 		virtual void ProcessScroll(float offsety);
 
+		virtual void Update(float deltaTime);
 	};
 }

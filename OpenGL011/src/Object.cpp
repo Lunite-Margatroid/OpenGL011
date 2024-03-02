@@ -6,4 +6,7 @@ namespace LM
 	{
 		return glm::vec3(0.0f, 0.0f, 1.0f);
 	}
+	void Object::SetRotationAxis(const glm::vec3&)
+	{
+	}
 }

@@ -3,13 +3,12 @@
 
 namespace LM
 {
-	glm::mat4 Camera::GetViewTrans()
+	glm::mat4 Camera::GetViewTrans() const
 	{
-		UpdateViewTrans();
 		return glm::lookAt(m_position, m_position + m_front, m_up);
 	}
 
-	glm::mat4 Camera::GetProjectionTrans()
+	glm::mat4 Camera::GetProjectionTrans() const
 	{
 		return glm::perspective(m_fov, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 	}
@@ -94,6 +93,62 @@ namespace LM
 		lastY = ypos;
 	}
 
+	void Camera::ProcessKeyInput(float deltaTime)
+	{
+		if (Input::IsKeyPressed(GLFW_KEY_W))
+		{
+			CameraMove(LM::FRONT, deltaTime);
+		}
+
+		if (Input::IsKeyPressed(GLFW_KEY_S))
+		{
+			CameraMove(LM::BACK, deltaTime);
+		}
+
+		if (Input::IsKeyPressed(GLFW_KEY_A))
+		{
+			CameraMove(LM::LEFT, deltaTime);
+		}
+
+		if (Input::IsKeyPressed(GLFW_KEY_D))
+		{
+			CameraMove(LM::RIGHT, deltaTime);
+		}
+
+		if (Input::IsKeyPressed(GLFW_KEY_SPACE))
+		{
+			CameraMove(LM::UP, deltaTime);
+		}
+
+		if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+		{
+			CameraMove(LM::DOWN, deltaTime);
+		}
+	}
+
+	void Camera::ProcessMouse(float deltaTime)
+	{
+		static bool firstMouse = true;
+		static float lastX = WIDTH / 2;
+		static float lastY = HEIGHT / 2;
+		auto [x, y] = Input::GetMousePosition();
+		if (firstMouse)
+		{
+			firstMouse = false;
+			lastX = x;
+			lastY = y;
+		}
+
+		float offsetX = x - lastX;
+		float offsetY = lastY - y;
+
+		CameraRotate(offsetX, offsetY);
+
+		lastX = x;
+		lastY = y;
+
+	}
+
 	void Camera::ProcessScroll(float offsety)
 	{
 		m_fov -= offsety * m_scrollSensitivity;
@@ -102,6 +157,14 @@ namespace LM
 			m_fov = PI / 4.0f;
 		if (m_fov < 0.02f)
 			m_fov = 0.02f;
+	}
+
+	void Camera::Update(float deltaTime)
+	{
+		ProcessKeyInput(deltaTime);
+		ProcessMouse(deltaTime);
+		UpdateViewTrans();
+		UpdateProjectionTrans();
 	}
 
 	void Camera::UpdateViewTrans()
@@ -168,6 +231,7 @@ namespace LM
 		m_moveSpeed = SPEED;
 		m_scrollSensitivity = SCROLL_SENSITIVITY;
 		m_rotateSensitivity = ROTATE_SENEITIVITY;
+		m_keyFovSensitivity = PI / 20.0f;
 
 		UpdateViewTrans();
 		UpdateProjectionTrans();

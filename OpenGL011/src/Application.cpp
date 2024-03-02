@@ -20,6 +20,8 @@
 #include "test/TestTextureMap.h"
 #include "test/TestMesh3D.h"
 
+#include "Input.h"
+
 void UpdateTimer();
 void RuntimeLog();
 void ProcessInput(GLFWwindow* window);
@@ -35,6 +37,7 @@ int main()
 {
 	GLFWwindow* window = InitGL();
 
+	LM_INPUT_SET_WINDOW_PTR(window);
 	/* Setup Dear ImGui context */
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -112,6 +115,8 @@ int main()
 			glfwSwapBuffers(window);
 			// 处理输入
 			ProcessInput(window);
+			// 更新摄像机
+			camera.Update(deltaTime);
 			// log 输出当前摄像机坐标
 			RuntimeLog();
 			// 更新时间变量
@@ -135,6 +140,9 @@ int main()
 	glfwDestroyWindow(window);
 
 	glfwTerminate();
+
+	LM_INPUT_DESTROY;
+
 	return 0;
 }
 
@@ -145,7 +153,6 @@ void ProcessInput(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
-	camera.ProcessKeyInput(window, deltaTime);
 }
 
 

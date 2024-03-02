@@ -13,7 +13,7 @@ namespace LM
 		std::vector<Object*> m_Children;
 		
 		// ----- bool ----
-		bool m_Enable;			// 是否可用
+		bool m_Enabled;			// 是否可用
 		bool m_Render;			// 是否渲染
 
 		//---- 位姿 ----
@@ -43,7 +43,7 @@ namespace LM
 		// ----- bool ----
 		void Enable();
 		void Disable();
-		bool IsEnable() const;
+		bool IsEnabled() const;
 
 		void Renderable();
 		void DisRenderable();
@@ -71,6 +71,8 @@ namespace LM
 
 
 		//----- 运动能力 ---------
+
+
 	};
 }
 
